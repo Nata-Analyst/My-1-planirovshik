@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Моя неделя — планировщик времени</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div><p class="eyebrow">ЛИЧНЫЙ ПЛАНИРОВЩИК</p><h1>Моя неделя<span class="leaf" aria-hidden="true">↗</span></h1><p class="subtitle">Место для ваших задач и времени</p></div>
+      <div class="save-state"><span id="status-dot" class="status-dot" aria-hidden="true"></span><span id="save-status" role="status" aria-live="polite">Загрузка…</span></div>
+    </header>
+    <div id="storage-notice" class="notice" hidden><p>Данные хранятся только в этом браузере. В другом браузере будет отдельный список.</p><button id="dismiss-notice" class="text-button">Понятно</button></div>
+    <div id="storage-error" class="error-banner" role="alert" hidden><p id="storage-error-text"></p><div class="actions"><button id="retry-save" hidden>Повторить сохранение</button><button id="discard-save" hidden>Отменить несохранённые изменения</button><button id="reload-page" hidden>Перезагрузить страницу</button></div></div>
+    <div id="transition-guard" class="notice guard" role="alert" hidden><p>Есть несохранённые поля. Исправьте их или отмените изменения.</p><div class="actions"><button id="stay">Остаться</button><button id="discard-transition" class="secondary">Отменить изменения и перейти</button></div></div>
+    <nav class="tabs" role="tablist" aria-label="Разделы планировщика">
+      <button id="tab-planner" role="tab" aria-selected="true" aria-controls="planner-panel" tabindex="0">Планировщик</button>
+      <button id="tab-tasks" role="tab" aria-selected="false" aria-controls="tasks-panel" tabindex="-1">Справочник задач <span id="task-count" class="count">0</span></button>
+    </nav>
+    <section id="planner-panel" role="tabpanel" aria-labelledby="tab-planner">
+      <div class="section-heading"><div><p class="eyebrow">СЕМЬ ДНЕЙ В ФОКУСЕ</p><h2 id="period-title"></h2></div><button id="current-week" class="secondary">Текущая неделя</button></div>
+      <div class="date-toolbar">
+        <div class="date-controls"><button id="previous-day" class="icon-button" aria-label="Предыдущий день">←</button><label for="period-start">Начало периода<input id="period-start" type="date" min="1900-01-01" max="9999-12-25"></label><button id="next-day" class="icon-button" aria-label="Следующий день">→</button></div>
+        <div class="slider-controls"><div class="slider-heading"><label for="period-slider">Сдвиг по дням</label><output id="slider-label" for="period-slider">0 · опорная дата</output></div><input id="period-slider" type="range" min="-31" max="31" step="1" value="0"><div class="range-labels"><span>−31 день</span><span>+31 день</span></div></div>
+      </div>
+      <div class="week-scroll" tabindex="0" role="region" aria-label="Семь дней выбранного периода"><div id="week-grid" class="week-grid"></div></div>
+      <section class="analytics" aria-labelledby="analytics-title">
+        <div class="section-heading"><div><p class="eyebrow">КАК ПРОШЛИ СЕМЬ ДНЕЙ</p><h2 id="analytics-title">Время за период</h2></div><p class="muted">112 часов — 100%</p></div>
+        <div class="period-totals"><div><span>Всего времени</span><strong id="period-hours">0 ч</strong></div><div><span>Эффективность периода</span><strong id="period-efficiency">0%</strong></div></div>
+        <div class="chart-card">
+          <div class="chart-heading"><h3>Распределение времени</h3><div class="chart-switch" role="group" aria-label="Вид графика"><button id="chart-days" type="button" aria-pressed="true">По дням</button><button id="chart-tasks" type="button" aria-pressed="false">По задачам</button></div></div>
+          <div id="chart-area" class="chart-area"><div class="chart-scroll" role="region" aria-label="График времени" tabindex="0"><svg id="time-chart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 350" role="img" aria-labelledby="chart-title chart-description"></svg></div><div id="chart-tooltip" class="chart-tooltip" role="tooltip" hidden></div></div>
+          <ul id="chart-legend" class="chart-legend" aria-label="Задачи на графике" hidden></ul>
+        </div>
+        <div class="table-card"><h3>Часы по задачам</h3><p id="analytics-empty" class="muted" hidden>В этом периоде пока нет записей.</p><div class="table-scroll" role="region" aria-label="Время по задачам и дням" tabindex="0"><table id="tasks-summary"><caption class="visually-hidden">Часы по задачам за выбранные семь дней</caption><thead></thead><tbody></tbody><tfoot></tfoot></table></div></div>
+      </section>
+    </section>
+    <section id="tasks-panel" role="tabpanel" aria-labelledby="tab-tasks" hidden>
+      <div class="section-heading"><div><p class="eyebrow">ВАШИ ЗАНЯТИЯ</p><h2>Справочник задач</h2></div><span class="muted">Активные и архивные</span></div>
+      <p class="section-description">Добавьте задачи, на которые вы тратите время. Архив сохранит их историю.</p>
+      <form id="add-task-form" class="add-task-form" novalidate><div class="field"><label for="new-task-name">Название новой задачи</label><input id="new-task-name" type="text" placeholder="Например, чтение" aria-describedby="new-task-error" autocomplete="off"><p id="new-task-error" class="field-error" aria-live="polite"></p></div><button type="submit">Добавить задачу</button></form>
+      <p id="tasks-empty" class="empty-state"></p><div id="task-list" class="task-list"></div>
+    </section>
+    <footer><span id="storage-size">Хранение в браузере</span><p>Записи доступны в этом браузере и профиле. Очистка данных браузера может удалить их; перемещение файлов может изменить доступ к хранилищу.</p><p id="size-warning" class="field-error" hidden>Объём данных велик; доступный лимит зависит от браузера.</p></footer>
+  </main>
+</body>
+</html>
